@@ -71,3 +71,23 @@ Set `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, and `WHATSAPP_API_VERSION` as 
 - Never place provider credentials in Git or frontend variables. Use a secret manager and rotate credentials.
 
 **Production caveat:** These are security and integration foundations, not a certification that the service is production-ready. A production rollout still needs a full tenant-bound authorization review (including workflow/approval ownership), schema migrations and integration tests, rate limits, idempotent delivery/retry + webhook reconciliation, consent/opt-out enforcement, secure admin/roles, backups/restore drills, observability, load testing and penetration testing. Run CI and validate on a staging environment before using customer data.
+
+## End-to-end operator milestone
+
+- Google login now gates the dashboard; sign out clears the session token. Backend validates signature, issuer, expiry **and audience** against `GOOGLE_CLIENT_ID`.
+- The sidebar now includes an Approval inbox and Workflows screen. Generate an AI draft → queue it → approve/reject; approve-and-send invokes WhatsApp Cloud API. Workflow runs have a queue processor and result history.
+- Scheduled overdue processing runs at `COLLECTION_CRON` (default 09:00 Asia/Kolkata) and only creates pending review items; it never auto-sends.
+- WhatsApp webhook: configure Meta callback URL `https://YOUR_API/api/whatsapp/webhook`, verify token `WHATSAPP_VERIFY_TOKEN`, subscribe to `messages`, and set `WHATSAPP_APP_SECRET`. Signature is checked against raw request bytes. Provider message IDs are linked to reminder records and delivery/read/failure events reconciled.
+- CORS is controlled by `CORS_ALLOWED_ORIGINS`. `GOOGLE_CLIENT_ID` must equal the frontend OAuth client ID. Keep the frontend ID public; keep app secret/access token server-only.
+- `render.yaml` now includes API OAuth, CORS, WhatsApp and web build variables. Set every `sync: false` secret in Render dashboard. For Docker Compose, copy `.env.example` to `.env` and fill secrets.
+
+### Local operator setup
+```bash
+cp .env.example .env
+# set NEXT_PUBLIC_GOOGLE_CLIENT_ID and matching GOOGLE_CLIENT_ID
+docker compose up --build
+```
+Create Google OAuth Web client; allow `http://localhost:3000` as JavaScript origin. Use Meta's test phone and approved template/opt-in for initial messaging. Create customer with E.164 phone, invoice, draft, queue approval, then send from inbox. For webhook status, expose API via HTTPS tunnel and set callback in Meta developer console.
+
+### Validation boundary
+GitHub Actions compiles API and builds web. This repo's implementation is still a staged MVP: add formal integration tests, tenant membership/roles, encrypted secrets, tenant-scoped audit/activity, customer consent and opt-out enforcement, message templates for business-initiated conversations, rate limiting, retries/dead-letter/outbox, scheduled workflow cadence semantics, data retention, backup/restore, alerting, SLO/load tests and external security review before production customer data or broad messaging.
