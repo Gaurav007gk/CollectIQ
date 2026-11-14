@@ -22,6 +22,14 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-local_only_change_me}
       GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      WHATSAPP_TOKEN: ${WHATSAPP_TOKEN:-}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID:-}
+      WHATSAPP_API_VERSION: ${WHATSAPP_API_VERSION:-v21.0}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN:-}
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+      COLLECTION_CRON: ${COLLECTION_CRON:-0 0 9 * * *}
+      COLLECTION_TIMEZONE: ${COLLECTION_TIMEZONE:-Asia/Kolkata}
+      WORKFLOW_POLL_MS: ${WORKFLOW_POLL_MS:-15000}
     ports: ["8080:8080"]
     depends_on:
       postgres: {condition: service_healthy}
@@ -33,10 +41,13 @@ services:
       LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
     ports: ["8000:8000"]
   web:
-    build:\n      context: ./apps/web\n      args:\n        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+    build:
+      context: ./apps/web
+      args:
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
     ports: ["3000:3000"]
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080/api
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/api}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
     depends_on: [api]
 volumes:
