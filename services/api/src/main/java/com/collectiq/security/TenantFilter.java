@@ -1,0 +1,3 @@
+package com.collectiq.security;
+import jakarta.servlet.*;import jakarta.servlet.http.*;import org.springframework.security.core.context.SecurityContextHolder;import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;import org.springframework.web.filter.OncePerRequestFilter;import java.io.IOException;
+public class TenantFilter extends OncePerRequestFilter{protected void doFilterInternal(HttpServletRequest req,HttpServletResponse res,FilterChain chain)throws ServletException,IOException{try{var a=SecurityContextHolder.getContext().getAuthentication();if(a instanceof JwtAuthenticationToken j)TenantContext.set(j.getToken().getSubject());chain.doFilter(req,res);}finally{TenantContext.clear();}}}
