@@ -1,0 +1,7 @@
+package com.collectiq.workflow;
+import org.springframework.scheduling.annotation.Scheduled;import org.springframework.stereotype.Component;import org.springframework.jdbc.core.JdbcTemplate;import org.slf4j.Logger;import org.slf4j.LoggerFactory;
+@Component public class CollectionScheduler{
+ private static final Logger log=LoggerFactory.getLogger(CollectionScheduler.class);private final JdbcTemplate db;public CollectionScheduler(JdbcTemplate d){db=d;}
+ @Scheduled(cron="${COLLECTION_CRON:0 0 9 * * *}",zone="${COLLECTION_TIMEZONE:Asia/Kolkata}")
+ public void queueOverdue(){int n=db.update("insert into reminder_approvals(tenant_id,invoice_id,recipient,message,status) select i.tenant_id,i.id,c.phone,concat('Payment reminder: invoice ',i.invoice_number,' for INR ',i.amount,' was due ',i.due_date,'. Please share expected payment date. If already paid, please disregard.'),'PENDING' from invoices i join customers c on c.id=i.customer_id where i.status='OPEN' and i.due_date<current_date and c.phone is not null and not exists(select 1 from reminder_approvals a where a.invoice_id=i.id and a.status in ('PENDING','APPROVED'))");log.info("Collection scheduler queued {} reminders for human review",n);}
+}
