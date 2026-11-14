@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: collectiq-api
+    runtime: docker
+    dockerfilePath: ./services/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_JWK_SET_URI
+        value: https://www.googleapis.com/oauth2/v3/certs
+      - key: JWT_ISSUER_URI
+        value: https://accounts.google.com
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+  - type: web
+    name: collectiq-agent
+    runtime: docker
+    dockerfilePath: ./services/agent/Dockerfile
+    dockerContext: ./services/agent
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+  - type: web
+    name: collectiq-web
+    runtime: docker
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: ./apps/web
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
