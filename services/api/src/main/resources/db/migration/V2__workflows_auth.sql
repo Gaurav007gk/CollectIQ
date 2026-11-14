@@ -1,0 +1,5 @@
+CREATE TABLE collection_workflows(id BIGSERIAL PRIMARY KEY,tenant_id VARCHAR(80) NOT NULL,name VARCHAR(180) NOT NULL,enabled BOOLEAN NOT NULL DEFAULT true,cadence_hours INT NOT NULL DEFAULT 24 CHECK(cadence_hours BETWEEN 1 AND 720),next_run_at TIMESTAMPTZ,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE collection_runs(id BIGSERIAL PRIMARY KEY,tenant_id VARCHAR(80) NOT NULL,workflow_id BIGINT REFERENCES collection_workflows(id),status VARCHAR(30) NOT NULL,started_at TIMESTAMPTZ,finished_at TIMESTAMPTZ,details JSONB,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE reminder_approvals(id BIGSERIAL PRIMARY KEY,tenant_id VARCHAR(80) NOT NULL,invoice_id BIGINT REFERENCES invoices(id),recipient VARCHAR(80),message TEXT NOT NULL,status VARCHAR(20) NOT NULL DEFAULT 'PENDING',approved_by VARCHAR(180),approved_at TIMESTAMPTZ,sent_at TIMESTAMPTZ,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX idx_runs_tenant ON collection_runs(tenant_id,status);
+CREATE INDEX idx_approval_pending ON reminder_approvals(tenant_id,status);
