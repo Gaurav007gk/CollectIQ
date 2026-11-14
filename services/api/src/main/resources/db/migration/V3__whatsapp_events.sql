@@ -1,0 +1,2 @@
+CREATE TABLE whatsapp_message_events(id BIGSERIAL PRIMARY KEY,provider_message_id VARCHAR(180) NOT NULL,status VARCHAR(30) NOT NULL,recipient VARCHAR(80),raw_payload JSONB,received_at TIMESTAMPTZ NOT NULL DEFAULT now(),UNIQUE(provider_message_id,status));
+CREATE INDEX idx_whatsapp_events_message ON whatsapp_message_events(provider_message_id);
