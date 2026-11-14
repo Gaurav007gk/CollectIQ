@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: collectiq-api, namespace: collectiq}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: collectiq-api}}
+  template:
+    metadata: {labels: {app: collectiq-api}}
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/gaurav007gk/collectiq-api:latest
+          ports: [{containerPort: 8080}]
+          envFrom: [{secretRef: {name: collectiq-api-secrets}}]
+          readinessProbe: {httpGet: {path: /actuator/health, port: 8080}, initialDelaySeconds: 25, periodSeconds: 10}
+          resources: {requests: {cpu: 250m, memory: 512Mi}, limits: {cpu: 1, memory: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: collectiq-api, namespace: collectiq}
+spec: {selector: {app: collectiq-api}, ports: [{port: 80, targetPort: 8080}]}
