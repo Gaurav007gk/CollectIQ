@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: {POSTGRES_DB: collectiq, POSTGRES_USER: collectiq, POSTGRES_PASSWORD: local_only_change_me}
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U collectiq"], interval: 5s, retries: 15}
+  redis: {image: redis:7-alpine, ports: ["6379:6379"]}
+  api:
+    build: ./services/api
+    environment: {SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/collectiq, SPRING_DATASOURCE_USERNAME: collectiq, SPRING_DATASOURCE_PASSWORD: local_only_change_me}
+    ports: ["8080:8080"]
+    depends_on: {postgres: {condition: service_healthy}}
+  agent: {build: ./services/agent, ports: ["8000:8000"]}
+  web: {build: ./apps/web, ports: ["3000:3000"], environment: {NEXT_PUBLIC_API_URL: http://localhost:8080/api}, depends_on: [api]
+volumes: {pgdata: {}}
