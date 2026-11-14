@@ -1,0 +1,1 @@
+package com.collectiq; import org.springframework.boot.SpringApplication;import org.springframework.boot.autoconfigure.SpringBootApplication; @SpringBootApplication public class CollectIqApplication{public static void main(String[]a){SpringApplication.run(CollectIqApplication.class,a);}}
