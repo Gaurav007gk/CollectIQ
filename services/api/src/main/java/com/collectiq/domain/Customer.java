@@ -1,0 +1,1 @@
+package com.collectiq.domain; import jakarta.persistence.*; @Entity @Table(name="customers") public class Customer{@Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;@Column(name="tenant_id",nullable=false) public String tenantId="demo";@Column(nullable=false)public String name;public String email;public String phone;}
