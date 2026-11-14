@@ -1,0 +1,5 @@
+CREATE TABLE customers (id BIGSERIAL PRIMARY KEY, tenant_id VARCHAR(80) NOT NULL DEFAULT 'demo', name VARCHAR(180) NOT NULL, email VARCHAR(180), phone VARCHAR(30), created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX idx_customers_tenant ON customers(tenant_id);
+CREATE TABLE invoices (id BIGSERIAL PRIMARY KEY, tenant_id VARCHAR(80) NOT NULL DEFAULT 'demo', customer_id BIGINT NOT NULL REFERENCES customers(id), invoice_number VARCHAR(80) NOT NULL, amount NUMERIC(14,2) NOT NULL CHECK(amount >= 0), due_date DATE NOT NULL, status VARCHAR(20) NOT NULL DEFAULT 'OPEN', created_at TIMESTAMPTZ NOT NULL DEFAULT now(), UNIQUE(tenant_id,invoice_number));
+CREATE INDEX idx_invoice_tenant_due ON invoices(tenant_id,due_date,status);
+CREATE TABLE audit_events (id BIGSERIAL PRIMARY KEY,tenant_id VARCHAR(80) NOT NULL,event_type VARCHAR(80) NOT NULL,entity_id BIGINT,detail JSONB,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
