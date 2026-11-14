@@ -1,0 +1,9 @@
+server: {port: 8080}
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/collectiq}
+    username: ${SPRING_DATASOURCE_USERNAME:collectiq}
+    password: ${SPRING_DATASOURCE_PASSWORD:local_only_change_me}
+  jpa: {hibernate: {ddl-auto: validate}, open-in-view: false}
+  flyway: {enabled: true}
+management: {endpoints: {web: {exposure: {include: health,info}}}}
